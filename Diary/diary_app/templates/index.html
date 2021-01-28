@@ -1,0 +1,225 @@
+{% load static %}
+<!--{% load diary_extras %}-->
+<!DOCTYPE HTML>
+<!--
+	Astral by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Jeongsun's Diary</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+
+		<link rel="stylesheet" type="text/css" href="/static/assets/css/jquery-ui.min.css"/>
+		<script type="text/javascript" src="/static/assets/js/jquery.min.js"></script>>
+		<script type="text/javascript" src="/static/assets/js/jquery-ui.min.js"></script>
+
+		<link rel="stylesheet" href="/static/assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="/static/assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-preload">
+
+		<!-- Wrapper-->
+			<div id="wrapper">
+
+				<!-- Nav -->
+					<nav id="nav">
+						<a href="#home" class="icon solid fa-home"><span>Home</span></a>
+						<a href="#work" class="icon solid fa-folder"><span>List</span></a>
+						<a href="#story" class="icon solid fa-file-alt"><span>Story</span></a>
+						<a href="#contact" class="icon solid fa-envelope"><span>Write</span></a>
+						<a href="https://github.com/jeongsun5680" class="icon brands fa-github"><span>GitHub</span></a>
+					</nav>
+
+				<!-- Main -->
+					<div id="main">
+
+						<!-- Me -->
+							<article id="home" class="panel intro">
+								<header>
+									<h1>Jeongsun's Diary</h1>
+									<p>I want to be a developer who changes the world</p>
+								</header>
+								<a href="#work" class="jumplink pic">
+									<span class="arrow icon solid fa-chevron-right"><span>See my work</span></span>
+									<img src="/static/images/me.jpg" alt="" />
+								</a>
+							</article>
+
+						<!-- Work -->
+							<article id="work" class="panel">
+								<header>
+									<h2>Diary</h2>
+								</header>
+								<p>
+									Remeber my daily life...
+								</p>
+								<section>
+									<div class="row">
+										{% for story in stories %}
+										
+										<div class="col-4 col-6-medium col-12-small">
+											{%if story.story_image == ""%}
+												<a href="#story" class="image fit" onclick="myFunction('{{story.id}}', '{{story.story_date}}', '{{story.story_keyword}}', '{{story.story_title}}', '/static/images/pic01.jpg', '{{story.story_content|escapejs}}', {{forloop.counter}});"><img src="/static/images/pic01.jpg" alt=""/></a>
+											{%else%}
+												<a href="#story" class="image fit" onclick="myFunction('{{story.id}}', '{{story.story_date}}', '{{story.story_keyword}}', '{{story.story_title}}', '{{story.story_image.url}}', '{{story.story_content|escapejs}}', {{forloop.counter}});"><img src="{{story.story_image.url}}" alt=""/></a>
+											{%endif%}
+										</div>
+										{% endfor %}
+									</div>
+								</section>
+							</article>
+
+							<!-- Story -->
+							<article id="story" class="panel">
+								<header>
+									<h2 id="order">Latest Story</h2>
+								</header>
+								{%if latest_story%}
+								<form method="post" enctype="multipart/form-data">{% csrf_token %}
+									<div>
+										<div class="row">
+											<div class="col-6 col-12-medium">
+												<input type="text" class="datepicker" name="story_date" id="story_date" value="{{latest_story.story_date|date:'Y-m-d'}}" placeholder="Date.."/>
+											</div>
+											<div class="col-6 col-12-medium">
+												<input type="text" name="story_keyword" id="story_keyword" value="{{latest_story.story_keyword}}" placeholder="Keyword.." />
+											</div>
+											<div class="col-12">
+												<input type="text" name="story_title" id="story_title" value="{{latest_story.story_title}}" placeholder="Title.." />
+											</div>
+											<div class="col-12">
+												<input type="file" name="story_image"/>
+											</div>
+											<div class="col-12 image fit">
+												<!--<input type="text" name="story_title" id="story_title" placeholder="Title.." />-->
+												{%if latest_story.story_image == ""%}
+													<img id="show_story_image" src="/static/images/pic01.jpg" alt=""/>
+												{%else%}
+													<img id="show_story_image" src="{{latest_story.story_image.url}}" alt=""/>
+												{%endif%}
+											</div>
+											<div class="col-12">
+												<textarea name="story_content" id="story_content" placeholder="Content..." rows="6">{{latest_story.story_content}}</textarea>
+											</div>
+											<input type="hidden" id="story_id" name="story_id" value="{{latest_story.id}}" >
+											<div class="col-6">
+												<input type="submit" value="Modify" formaction="./modifyDiary/"/>
+											</div>
+											<div class="col-6">
+												<input type="submit" value="Delete" formaction="./deleteDiary/" />
+											</div>
+										</div>
+									</div>
+								</form>
+								{%else%}
+								<div>
+									<div class="row">
+										<div class="col-6 col-12-medium">
+											<p>There's no story...</p>
+										</div>
+									</div>
+								</div>
+								{%endif%}
+								<!--
+								
+								-->
+							</article>
+
+						<!-- Contact -->
+							<article id="contact" class="panel">
+								<header>
+									<h2>How was your day?</h2>
+								</header>
+								<form action="./writeDiary/" method="post" enctype="multipart/form-data">{% csrf_token %}
+									<div>
+										<div class="row">
+											<div class="col-6 col-12-medium">
+												<input class="datepicker" type="text" name="story_date" placeholder="Date.." />
+											</div>
+											<div class="col-6 col-12-medium">
+												<input type="text" name="story_keyword" placeholder="Keyword..." />
+											</div>
+											<div class="col-12">
+												<input type="text" name="story_title" placeholder="Title..." />
+											</div>
+											<div class="col-12">
+												<input type="file" name="story_image"/>
+											</div>
+											<div class="col-12">
+												<textarea name="story_content" placeholder="Content..." rows="6"></textarea>
+											</div>
+											<div class="col-12">
+												<input type="submit" value="Done" />
+											</div>
+										</div>
+									</div>
+								</form>
+							</article>
+
+					</div>
+
+				<!-- Footer -->
+					<div id="footer">
+						<ul class="copyright">
+							<li>&copy; Untitled.</li><li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+						</ul>
+					</div>
+
+			</div>
+
+		<!-- Scripts -->
+			<!--<script src="/static/assets/js/jquery.min.js"></script>>-->
+			<script src="/static/assets/js/browser.min.js"></script>
+			<script src="/static/assets/js/breakpoints.min.js"></script>
+			<script src="/static/assets/js/util.js"></script>
+			<script src="/static/assets/js/main.js"></script>
+			<script>
+				
+
+				function myFunction() {
+					var data;
+					var monthNames = {'Jan':'01', 'Feb':'02', 'Mar':'03', 'Apr':'04', 'May':'05', 'Jun':'06', 'Jul':'07', 'Aug':'08', 'Sept':'09', 'Oct':'10', 'Nov':'11', 'Dec':'12'};
+					var dayNames = {'1':'01', '2':'02', '3':'03', '4':'04', '5':'05', '6':'06', '7':'07', '8':'08', '9':'09'};
+					//arguments[0]은 id, 이것도 뭔가 hidden으로 넘겨줘야한다. 그래야 id를 update 함수같은게 받아서 업데이트하지
+					data = document.getElementById('story_id');
+					data.value = arguments[0];
+					data = document.getElementById('story_date');
+					var str_date = arguments[1].split('.');
+					date_month = monthNames[str_date[0]];
+					str_date = str_date[1].split(',');
+					date_day = str_date[0].trim();
+					if(date_day in dayNames){date_day = dayNames[date_day];}
+					date_year = str_date[1].trim();
+					data.value = date_year+'-'+date_month+'-'+date_day;
+					data = document.getElementById('story_keyword');
+					data.value = arguments[2];
+					data = document.getElementById('story_title');
+					data.value = arguments[3];
+					//여기 순서 바꿔야함, story_image추가됨
+					data = document.getElementById('show_story_image');
+					data.src = arguments[4];
+					//file 타입 보내줘야함
+					//data = document.getElementById('story_image');
+					//data.value = arguments[4];
+					data = document.getElementById('story_content');
+					data.value = arguments[5];
+					console.log(arguments[5]);
+					console.log("change ? story id : "+document.getElementById('story_id').value);
+					console.log("change ? story date : "+document.getElementById('story_date').value);
+
+					if(arguments[6]!=0){
+						document.getElementById('order').innerHTML = String(arguments[6])+"th Story";
+					}
+				}
+
+				$(document).ready(function(){
+					$(".datepicker").datepicker(
+						{dateFormat:'yy-mm-dd'}
+					);
+				});	
+			</script>
+	</body>
+</html>
